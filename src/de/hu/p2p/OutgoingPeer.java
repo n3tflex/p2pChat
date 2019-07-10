@@ -5,12 +5,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class ServerThreadPool extends Thread {
-    private Server server;
+public class OutgoingPeer extends Thread {
+    private Servent servent;
     private Socket socket;
     private PrintWriter pw;
-    public ServerThreadPool(Socket socket, Server server){
-        this.server = server;
+    public OutgoingPeer(Socket socket, Servent servent){
+        this.servent = servent;
         this.socket = socket;
     }
 
@@ -18,8 +18,8 @@ public class ServerThreadPool extends Thread {
         try{
             BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             this.pw = new PrintWriter(socket.getOutputStream(), true);
-            while(true) server.send(br.readLine());
-        } catch (Exception e) { server.getServerThreadPool().remove(this); }
+            while(true) servent.send(br.readLine());
+        } catch (Exception e) { servent.getOutgoingConnections().remove(this); }
     }
 
     public PrintWriter getPrintWriter() {

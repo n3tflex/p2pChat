@@ -6,34 +6,35 @@ import java.net.Socket;
 
 public class Main {
 
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Enter username and port for this peer (space separated)");
         String[] setup = br.readLine().split(" ");
-        Server server = new Server(setup[1]);
-        server.start();
-        new Main().updateListingPeers(br, setup[0], server);
+        Servent servent = new Servent(setup[1]);
+        servent.start();
+        new Main().joinNetwork(br, setup[0], servent);
     }
 
-    public void updateListingPeers(BufferedReader br, String username, Server server) throws Exception {
-        System.out.println("Enter hostename and port (space separated localhost:9000 localhost:90001) (s to skip)");
+    public void joinNetwork(BufferedReader br, String username, Servent servent) throws Exception {
+        System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();
         String[] setup = input.split(" ");
         if(!input.equals("s")) for (int i = 0; i < setup.length; i++){
             String[] address = setup[i].split(":");
-            Socket s = null;
+            Socket socket = null;
             try {
-                s = new Socket(address[0], Integer.valueOf(address[1]));
-                new Peer(s).start();
+                socket = new Socket(address[0], Integer.valueOf(address[1]));
+                new IncomingPeer(socket).start();
             } catch(Exception e) {
-                if(s != null) s.close();
+                if(socket != null) socket.close();
                 else System.out.println("invalid input");
             }
         }
-        send(br, username, server);
+        send(br, username, servent);
     }
 
-    public void send(BufferedReader br, String username, Server server){
+    public void send(BufferedReader br, String username, Servent servent){
         try {
             System.out.println("Send messages (e to exit and c to setup ne clients):");
         boolean run = true;
@@ -44,14 +45,14 @@ public class Main {
                 break;
             } else if (input.equals("c")) {
                 System.out.println("updateListingPeers");
-                updateListingPeers(br, username, server);
+                joinNetwork(br, username, servent);
             } else {
                 StringWriter sw = new StringWriter();
                 Json.createWriter(sw).writeObject(Json.createObjectBuilder()
                         .add("username", username)
                         .add("message", input)
                         .build());
-                server.send(sw.toString());
+                servent.send(sw.toString());
             }
         }
         System.out.println("EXIT");
