@@ -25,7 +25,7 @@ public class Main {
             Socket socket = null;
             try {
                 socket = new Socket(address[0], Integer.valueOf(address[1]));
-                new IncomingPeer(socket).start();
+                new OutgoingConnection(socket).start();
             } catch(Exception e) {
                 if(socket != null) socket.close();
                 else System.out.println("invalid input");

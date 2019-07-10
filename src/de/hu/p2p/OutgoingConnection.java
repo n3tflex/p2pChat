@@ -8,9 +8,9 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 
 
-public class IncomingPeer extends Thread {
+public class OutgoingConnection extends Thread {
     private BufferedReader br;
-    public IncomingPeer(Socket s) throws IOException{
+    public OutgoingConnection(Socket s) throws IOException{
         br = new BufferedReader(new InputStreamReader(s.getInputStream()));
     }
 

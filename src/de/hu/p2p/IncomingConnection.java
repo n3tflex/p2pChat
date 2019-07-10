@@ -5,11 +5,11 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class OutgoingPeer extends Thread {
+public class IncomingConnection extends Thread {
     private Servent servent;
     private Socket socket;
     private PrintWriter pw;
-    public OutgoingPeer(Socket socket, Servent servent){
+    public IncomingConnection(Socket socket, Servent servent){
         this.servent = servent;
         this.socket = socket;
     }
