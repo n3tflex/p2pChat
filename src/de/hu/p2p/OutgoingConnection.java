@@ -5,6 +5,7 @@ import javax.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class OutgoingConnection extends Thread {
@@ -25,10 +26,14 @@ public class OutgoingConnection extends Thread {
                 JsonObject jo = Json.createReader(br).readObject();
                 if(jo.containsKey("username")){
                     servent.sendChatMessage(jo.toString());
-                } else if(jo.containsKey("messageID")){
-                    servent.sendPingMessage(jo.toString());
                 } else if(jo.containsKey("ttl")){
-                   servent.sendPongMessage("port");
+                    servent.sendPingMessage(jo.toString());
+                } else if(jo.containsKey("port")){
+                    if(Servent.peerIP.equals(jo.get("ip").toString())){
+                        System.out.println("jo");
+                    } else {
+                        servent.sendPongMessage("port");
+                    }
                 }
             }
         } catch (Exception e) { servent.getOutgoingConnections().remove(this); }

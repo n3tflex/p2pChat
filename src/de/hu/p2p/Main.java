@@ -2,6 +2,7 @@ package de.hu.p2p;
 
 import javax.json.Json;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,6 +11,7 @@ public class Main {
     private boolean isFirstPeer = true;
     private static Servent servent;
     private String[] stablePeers = new String[]{"192.168.2.104:4444"};
+
     private Set<IncomingConnection> incomingConnections = new HashSet<>();
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
