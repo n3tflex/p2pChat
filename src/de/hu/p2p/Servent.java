@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,6 +65,21 @@ public class Servent extends Thread {
         try {
             outgoingConnections.forEach(t ->
                     t.getPrintWriter().println(new Ping(1, 3).createPing()));}
+        catch (Exception e) {e.printStackTrace();}
+    }
+
+
+    public void sendPongMessage(String message){
+        // Send message to all known outgoing connections
+        try {
+            outgoingConnections.forEach(t ->
+            {
+                try {
+                    t.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), 4445).createPong());
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+            });}
         catch (Exception e) {e.printStackTrace();}
     }
 }

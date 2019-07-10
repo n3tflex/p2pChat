@@ -27,6 +27,8 @@ public class OutgoingConnection extends Thread {
                     servent.sendChatMessage(jo.toString());
                 } else if(jo.containsKey("messageID")){
                     servent.sendPingMessage(jo.toString());
+                } else if(jo.containsKey("ttl")){
+                   servent.sendPongMessage("port");
                 }
             }
         } catch (Exception e) { servent.getOutgoingConnections().remove(this); }

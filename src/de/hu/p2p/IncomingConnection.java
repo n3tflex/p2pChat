@@ -23,7 +23,9 @@ public class IncomingConnection extends Thread {
                 if(jo.containsKey("username")){
                     // Print to command line
                     System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
-                } else if(jo.containsKey("messageID")){
+                } else if(jo.containsKey("port")){
+                    System.out.println("new Ping");
+                } else if(jo.containsKey("ttl")){
                     System.out.println("new Ping");
                 }
             } catch (Exception e){

@@ -9,16 +9,16 @@ public class Pong {
     private int port;
     private String messageID;
 
-    public Pong(String ip, int ttl, String messageID){  // Create a message object
+    public Pong(String ip, int port){  // Create a message object
         this.ip = ip;
-        this.port = ttl;
+        this.port = port;
         this.messageID = messageID;
     }
 
     public String createPong(){
         StringWriter sw = new StringWriter();
         Json.createWriter(sw).writeObject(Json.createObjectBuilder()
-                .add("messageID", messageID)
+                .add("messageID", UUID.randomUUID().toString())
                 .add("port", port)
                 .add("ip", ip)
                 .build());

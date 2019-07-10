@@ -25,7 +25,7 @@ public class Main {
         String[] url = stablePeers[0].split(":");
         if(!isFirstPeer){
             servent.addOutgoingConnection(url[0], Integer.valueOf(url[1]));
-            servent.sendPingMessage("PING");
+            servent.sendPongMessage("PING");
         }
         System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();
