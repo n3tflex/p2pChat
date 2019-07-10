@@ -19,11 +19,7 @@ public class Main {
         port = Integer.valueOf(setup[1]);
         servent = new Servent(setup[1]);
         servent.start();
-        if(newNetwork){
-            new Main().startPeers(br, setup[0], servent);
-        } else {
-
-        }
+        new Main().startPeers(br, setup[0], servent);
     }
 
     // Called to join the network with a defined username und servent with choosen port

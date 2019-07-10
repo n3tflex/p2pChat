@@ -28,8 +28,10 @@ public class Servent extends Thread {
                 // if connecting peer is not yet a known incoming or outgoing connection then add it
                 if(!incomingConnections.containsKey(ip)){
                     addIncomingConnection(ip, 4445);
-                } else if(!outgoingConnections.containsKey(ip)){
+                }
+                if(!outgoingConnections.containsKey(ip)){
                     addOutgoingConnection(ip, socket);
+                    sendPongMessage(Main.port);
                 }
             }
         } catch (Exception e) {e.printStackTrace();}
