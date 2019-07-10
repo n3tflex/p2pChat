@@ -10,8 +10,10 @@ import java.net.Socket;
 
 public class IncomingConnection extends Thread {
     private BufferedReader br;
-    public IncomingConnection(Socket s) throws IOException{
+    private Servent servent;
+    public IncomingConnection(Socket s, Servent servent) throws IOException{
         br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        this.servent = servent;
     }
 
     public void run(){
@@ -25,8 +27,10 @@ public class IncomingConnection extends Thread {
                     System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
                 } else if(jo.containsKey("port")){
                     System.out.println("new Ping");
+                    servent.sendPongMessage(1234);
                 } else if(jo.containsKey("ttl")){
                     System.out.println("new Ping");
+
                 }
             } catch (Exception e){
                 run = false;
@@ -34,4 +38,6 @@ public class IncomingConnection extends Thread {
             }
         }
     }
+
+
 }

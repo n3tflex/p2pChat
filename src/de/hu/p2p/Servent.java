@@ -67,6 +67,12 @@ public class Servent extends Thread {
         ic.start();
     }
 
+    public void addIncomingConnection(String ip, int port) throws IOException {
+        IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
+        incomingConnections.add(ic);
+        ic.start();
+    }
+
 
     public void sendPingMessage(String message){
         // Send message to all known outgoing connections

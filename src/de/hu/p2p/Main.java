@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Main {
-    private boolean isFirstPeer = false;
+    private boolean isFirstPeer = true;
     private static Servent servent;
-    private String[] stablePeers = new String[]{"192.168.2.102:4444"};
+    private String[] stablePeers = new String[]{"192.168.2.104:4444"};
     public static int port;
     public static String ID = UUID.randomUUID().toString();
 
@@ -30,8 +30,7 @@ public class Main {
     public void joinNetwork(BufferedReader br, String username, Servent servent) throws Exception {
         String[] url = stablePeers[0].split(":");
         if(!isFirstPeer){
-            servent.addOutgoingConnection(url[0], Integer.valueOf(url[1]));
-            servent.sendPongMessage(port);
+            servent.addIncomingConnection(url[0], Integer.valueOf(url[1]));
         }
         System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();
@@ -42,7 +41,7 @@ public class Main {
             try {
                 // Creates a new incoming connection to receive messages from
                 socket = new Socket(url[0], Integer.valueOf(url[1]));
-                IncomingConnection ic = new IncomingConnection(socket);
+                IncomingConnection ic = new IncomingConnection(socket, servent);
                 incomingConnections.add(ic);
                 ic.start();
             } catch(Exception e) {
