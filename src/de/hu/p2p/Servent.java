@@ -26,10 +26,8 @@ public class Servent extends Thread {
                 Socket socket = serverSocket.accept();
                 String ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
                 // if connecting peer is not yet a known incoming or outgoing connection then add it
-                if(!outgoingConnections.containsKey(ip)){
-                    addOutgoingConnection(ip, socket);
-                    sendPongMessage(Main.port);
-                }
+                addOutgoingConnection(ip, socket);
+                sendPongMessage(Main.port);
             }
         } catch (Exception e) {e.printStackTrace();}
     }
@@ -47,10 +45,12 @@ public class Servent extends Thread {
     }
 
     public void addOutgoingConnection(String ip, Socket socket) {
-        OutgoingConnection ic = new OutgoingConnection(socket, this);
-        outgoingConnections.put(ip, ic);
-        ic.start();
-        System.out.println("New outgoing connection: " + ip);
+        if(!outgoingConnections.containsKey(ip)) {
+            OutgoingConnection ic = new OutgoingConnection(socket, this);
+            outgoingConnections.put(ip, ic);
+            ic.start();
+            System.out.println("New outgoing connection: " + ip);
+        }
     }
 
     public void addIncomingConnection(String ip, int port) throws IOException {
@@ -58,6 +58,7 @@ public class Servent extends Thread {
             IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
             incomingConnections.put(ip, ic);
             ic.start();
+            System.out.println("New incoming connection: " + ip);
         }
     }
 
