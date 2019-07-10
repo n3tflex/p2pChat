@@ -1,5 +1,7 @@
 package de.hu.p2p;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,8 +22,12 @@ public class OutgoingConnection extends Thread {
             BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
             this.pw = new PrintWriter(socket.getOutputStream(), true);
             while(true) {
-                // if BufferedReader detects a new line it is send to the servent
-                servent.send(br.readLine());
+                JsonObject jo = Json.createReader(br).readObject();
+                if(jo.containsKey("username")){
+                    servent.sendChatMessage(jo.toString());
+                } else if(jo.containsKey("messageID")){
+                    servent.sendPingMessage(jo.toString());
+                }
             }
         } catch (Exception e) { servent.getOutgoingConnections().remove(this); }
     }

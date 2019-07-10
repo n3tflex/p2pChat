@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Main {
+    private boolean isFirstPeer = true;
     private static Servent servent;
     private String[] stablePeers = new String[]{"192.168.2.104:4444"};
     private Set<IncomingConnection> incomingConnections = new HashSet<>();
@@ -22,8 +23,10 @@ public class Main {
     // Called to join the network with a defined username und servent with choosen port
     public void joinNetwork(BufferedReader br, String username, Servent servent) throws Exception {
         String[] url = stablePeers[0].split(":");
-        startConnection(url[0], Integer.valueOf(url[1]));
-        sendMessage(new Ping(1, 3).createPing());
+        if(!isFirstPeer){
+            servent.addOutgoingConnection(url[0], Integer.valueOf(url[1]));
+            servent.sendPingMessage("PING");
+        }
         System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();
         String[] setup = input.split(" ");
@@ -49,28 +52,7 @@ public class Main {
     private PrintWriter out;
     private BufferedReader in;
 
-    public void startConnection(String ip, int port) throws IOException {
-        clientSocket = new Socket(ip, port);
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-    }
 
-    public String sendMessage(String msg) throws IOException {
-        out.println(msg);
-        String resp = in.readLine();
-        return resp;
-    }
-
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-    }
-
-    public void ping(){
-        // Send message to all known outgoing connections
-        servent.send(new Ping(1, 3).createPing());
-    }
 
     public void startChat(BufferedReader br, String username, Servent servent){
         try {
@@ -92,7 +74,7 @@ public class Main {
                         .add("message", input)
                         .build());
                 // Send message to all known outgoing connections
-                servent.send(sw.toString());
+                servent.sendChatMessage(sw.toString());
             }
         }
         System.out.println("EXIT");

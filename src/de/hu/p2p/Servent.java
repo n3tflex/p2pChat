@@ -1,6 +1,9 @@
 package de.hu.p2p;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -8,7 +11,7 @@ import java.util.Set;
 
 public class Servent extends Thread {
     private ServerSocket serverSocket;
-    // HashMap containing all known connections to send our messages to
+    // HashMap containing all known connections to sendChatMessage our messages to
     private Set<OutgoingConnection> outgoingConnections = new HashSet<>();
     private Set<IncomingConnection> incomingConnections = new HashSet<>();
     public Servent(String port) throws IOException {
@@ -19,13 +22,12 @@ public class Servent extends Thread {
         try {
             while(true){
                 // Is called after another peer is trying to create connection in their joinNetwork() method
-                // Via this connection we send the messages
+                // Via this connection we sendChatMessage the messages
                 OutgoingConnection ic = new OutgoingConnection(serverSocket.accept(), this);
                 System.out.println("New Connection: " + ic.getSocket().getInetAddress());
                 outgoingConnections.add(ic);
                 ic.start();
                 createIncomingConnection(ic.getSocket().getInetAddress().getHostAddress(), ic.getSocket().getPort());
-                
             }
         } catch (Exception e) {e.printStackTrace();}
     }
@@ -42,10 +44,25 @@ public class Servent extends Thread {
     }
 
     // This method is called when the user enters a new message to the commandline
-    public void send(String message) {
+    public void sendChatMessage(String message) {
         try {
             outgoingConnections.forEach(t ->
                 t.getPrintWriter().println(message));}
+        catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void addOutgoingConnection(String ip, int port) throws IOException {
+        OutgoingConnection ic = new OutgoingConnection(new Socket(ip, port), this);
+        System.out.println("New outGoingConnection: " + ic.getSocket().getInetAddress());
+        outgoingConnections.add(ic);
+    }
+
+
+    public void sendPingMessage(String message){
+        // Send message to all known outgoing connections
+        try {
+            outgoingConnections.forEach(t ->
+                    t.getPrintWriter().println(new Ping(1, 3).createPing()));}
         catch (Exception e) {e.printStackTrace();}
     }
 }
