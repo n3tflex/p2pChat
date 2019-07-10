@@ -9,9 +9,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Main {
-    private boolean isFirstPeer = true;
+    private boolean isFirstPeer = false;
     private static Servent servent;
-    private String[] stablePeers = new String[]{"192.168.2.104:4445"};
+    private String[] stablePeers = new String[]{"192.168.2.102:4444"};
     public static int port;
     public static String ID = UUID.randomUUID().toString();
 

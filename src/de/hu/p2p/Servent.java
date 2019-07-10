@@ -64,6 +64,7 @@ public class Servent extends Thread {
         OutgoingConnection ic = new OutgoingConnection(new Socket(ip, port), this);
         System.out.println("New outGoingConnection: " + ic.getSocket().getInetAddress());
         outgoingConnections.add(ic);
+        ic.start();
     }
 
 
