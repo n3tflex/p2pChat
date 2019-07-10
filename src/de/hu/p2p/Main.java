@@ -31,10 +31,10 @@ public class Main {
                 else System.out.println("invalid input");
             }
         }
-        send(br, username, servent);
+        startChat(br, username, servent);
     }
 
-    public void send(BufferedReader br, String username, Servent servent){
+    public void startChat(BufferedReader br, String username, Servent servent){
         try {
             System.out.println("Send messages (e to exit and c to setup ne clients):");
         boolean run = true;
