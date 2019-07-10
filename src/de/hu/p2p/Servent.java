@@ -1,6 +1,7 @@
 package de.hu.p2p;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class Servent extends Thread {
                 String ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
                 // if connecting peer is not yet a known incoming or outgoing connection then add it
                 addConnection(ip, socket);
-                sendPongMessage(Main.port);
+               // sendPongMessage(Main.port);
             }
         } catch (Exception e) {e.printStackTrace();}
     }
@@ -59,7 +60,8 @@ public class Servent extends Thread {
             Connection ic = new Connection(new Socket(ip, port), this);
             connections.put(ip, ic);
             ic.start();
-            ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), Main.port).createPong());
+            PrintWriter pw =  ic.getPrintWriter();
+            pw.println(new Pong(InetAddress.getLocalHost().getHostAddress(), Main.port).createPong());
             System.out.println("New outgoing connection: " + ip);
         }
     }
