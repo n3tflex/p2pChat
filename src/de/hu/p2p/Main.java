@@ -6,17 +6,21 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class Main {
     private boolean isFirstPeer = true;
     private static Servent servent;
-    private String[] stablePeers = new String[]{"192.168.2.104:4444"};
+    private String[] stablePeers = new String[]{"192.168.2.104:4445"};
+    public static int port;
+    public static String ID = UUID.randomUUID().toString();
 
     private Set<IncomingConnection> incomingConnections = new HashSet<>();
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Enter username and port for this peer (space separated)");
         String[] setup = br.readLine().split(" ");
+        port = Integer.valueOf(setup[1]);
         servent = new Servent(setup[1]);
         servent.start();
         new Main().joinNetwork(br, setup[0], servent);
@@ -27,7 +31,7 @@ public class Main {
         String[] url = stablePeers[0].split(":");
         if(!isFirstPeer){
             servent.addOutgoingConnection(url[0], Integer.valueOf(url[1]));
-            servent.sendPongMessage("PING");
+            servent.sendPongMessage(port);
         }
         System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();

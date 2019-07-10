@@ -4,10 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +17,20 @@ public class Servent extends Thread {
     private Set<IncomingConnection> incomingConnections = new HashSet<>();
     public Servent(String port) throws IOException {
         serverSocket = new ServerSocket(Integer.valueOf(port));
-        peerIP = serverSocket.getInetAddress().toString();
+        Enumeration e = NetworkInterface.getNetworkInterfaces();
+        while(e.hasMoreElements())
+        {
+            NetworkInterface n = (NetworkInterface) e.nextElement();
+            System.out.println(n.getDisplayName());
+            System.out.println(n.getName());
+            Enumeration ee = n.getInetAddresses();
+            while (ee.hasMoreElements())
+            {
+                InetAddress i = (InetAddress) ee.nextElement();
+                peerIP = i.getHostAddress();
+                System.out.println(i.getHostAddress());
+            }
+        }
     }
 
     public void run(){
@@ -65,14 +76,14 @@ public class Servent extends Thread {
     }
 
 
-    public void sendPongMessage(String message){
+    public void sendPongMessage(int port){
         // Send message to all known outgoing connections
 
         try {
             outgoingConnections.forEach(t ->
             {
                 try {
-                    t.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), 4445).createPong());
+                    t.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), port).createPong());
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 }

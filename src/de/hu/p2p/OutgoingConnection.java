@@ -29,10 +29,10 @@ public class OutgoingConnection extends Thread {
                 } else if(jo.containsKey("ttl")){
                     servent.sendPingMessage(jo.toString());
                 } else if(jo.containsKey("port")){
-                    if(Servent.peerIP.equals(jo.get("ip").toString())){
+                    if(Main.ID.equals(jo.getString("ID"))){
                         System.out.println("jo");
                     } else {
-                        servent.sendPongMessage("port");
+                        servent.sendPongMessage(Main.port);
                     }
                 }
             }
