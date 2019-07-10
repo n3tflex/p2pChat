@@ -6,15 +6,18 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class OutgoingConnection extends Thread {
     private Servent servent;
     private Socket socket;
     private PrintWriter pw;
+    private String ip;
     public OutgoingConnection(Socket socket, Servent servent){
         this.servent = servent;
         this.socket = socket;
+        this.ip=(((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
     }
 
     public void run(){
@@ -37,7 +40,7 @@ public class OutgoingConnection extends Thread {
                     }
                 }
             }
-        } catch (Exception e) { servent.getOutgoingConnections().remove(this); }
+        } catch (Exception e) { servent.getOutgoingConnections().remove(ip); }
     }
 
     public PrintWriter getPrintWriter() {
