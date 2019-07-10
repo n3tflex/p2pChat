@@ -23,6 +23,8 @@ public class IncomingConnection extends Thread {
                 if(jo.containsKey("username")){
                     // Print to command line
                     System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
+                } else if(jo.containsKey("messageID")){
+                    System.out.println("new Ping");
                 }
             } catch (Exception e){
                 run = false;
