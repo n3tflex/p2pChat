@@ -26,9 +26,6 @@ public class Servent extends Thread {
                 Socket socket = serverSocket.accept();
                 String ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
                 // if connecting peer is not yet a known incoming or outgoing connection then add it
-                if(!incomingConnections.containsKey(ip)){
-                    addIncomingConnection(ip, 4445);
-                }
                 if(!outgoingConnections.containsKey(ip)){
                     addOutgoingConnection(ip, socket);
                     sendPongMessage(Main.port);
@@ -57,9 +54,11 @@ public class Servent extends Thread {
     }
 
     public void addIncomingConnection(String ip, int port) throws IOException {
-        IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
-        incomingConnections.put(ip, ic);
-        ic.start();
+        if(!incomingConnections.containsKey(ip)){
+            IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
+            incomingConnections.put(ip, ic);
+            ic.start();
+        }
     }
 
     public void sendPingMessage(String message){

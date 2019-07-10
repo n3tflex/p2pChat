@@ -12,11 +12,13 @@ import java.net.Socket;
 public class IncomingConnection extends Thread {
     private BufferedReader br;
     private Servent servent;
+    private Socket socket;
     private String ip;
     public IncomingConnection(Socket s, Servent servent) throws IOException{
         br = new BufferedReader(new InputStreamReader(s.getInputStream()));
         this.servent = servent;
-        this.ip=(((InetSocketAddress) s.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
+        this.socket = s;
+        this.ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
     }
 
     public void run(){
@@ -29,8 +31,8 @@ public class IncomingConnection extends Thread {
                     // Print to command line
                     System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
                 } else if(jo.containsKey("port")){
-                    System.out.println("new Ping");
-                    servent.sendPongMessage(1234);
+                    System.out.println("new pong");
+                    servent.addIncomingConnection(ip , jo.getInt("port"));
                 } else if(jo.containsKey("ttl")){
                     System.out.println("new Ping");
 
