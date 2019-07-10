@@ -5,6 +5,7 @@ import javax.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -14,8 +15,10 @@ public class IncomingConnection extends Thread {
     private Servent servent;
     private Socket socket;
     private String ip;
+    private PrintWriter pw;
     public IncomingConnection(Socket s, Servent servent) throws IOException{
         br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        this.pw = new PrintWriter(s.getOutputStream(), true);
         this.servent = servent;
         this.socket = s;
         this.ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
@@ -44,5 +47,7 @@ public class IncomingConnection extends Thread {
         }
     }
 
-
+    public PrintWriter getPrintWriter() {
+        return pw;
+    }
 }

@@ -14,6 +14,7 @@ public class Servent extends Thread {
     // HashMaps containing all known connections to sendChatMessage our messages to
     private HashMap<String, OutgoingConnection> outgoingConnections = new HashMap<>();
     private HashMap<String, IncomingConnection> incomingConnections = new HashMap<>();
+    private HashMap<String, Connection> connections = new HashMap<>();
 
     public Servent(String port) throws IOException {
         serverSocket = new ServerSocket(Integer.valueOf(port));
@@ -26,7 +27,7 @@ public class Servent extends Thread {
                 Socket socket = serverSocket.accept();
                 String ip = (((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
                 // if connecting peer is not yet a known incoming or outgoing connection then add it
-                addOutgoingConnection(ip, socket);
+                addConnection(ip, socket);
                 sendPongMessage(Main.port);
             }
         } catch (Exception e) {e.printStackTrace();}
@@ -53,11 +54,32 @@ public class Servent extends Thread {
         }
     }
 
+    public void addConnection(String ip, int port) throws IOException {
+        if(!connections.containsKey(ip)) {
+            Connection ic = new Connection(new Socket(ip, port), this);
+            connections.put(ip, ic);
+            ic.start();
+            ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), Main.port).createPong());
+            System.out.println("New outgoing connection: " + ip);
+        }
+    }
+
+
+    public void addConnection(String ip, Socket socket) throws IOException {
+        if(!connections.containsKey(ip)) {
+            Connection ic = new Connection(socket, this);
+            connections.put(ip, ic);
+            ic.start();
+            System.out.println("New outgoing connection: " + ip);
+        }
+    }
+
     public void addIncomingConnection(String ip, int port) throws IOException {
         if(!incomingConnections.containsKey(ip)){
             IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
             incomingConnections.put(ip, ic);
             ic.start();
+            ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), port).createPong());
             System.out.println("New incoming connection: " + ip);
         }
     }

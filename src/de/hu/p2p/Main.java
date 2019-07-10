@@ -22,11 +22,11 @@ public class Main {
         new Main().startPeers(br, setup[0], servent);
     }
 
-    // Called to join the network with a defined username und servent with choosen port
+    // Called to join the network with a defined username und servent with chosen port
     public void startPeers(BufferedReader br, String username, Servent servent) throws Exception {
         String[] url = stablePeers[0].split(":");
         if(!newNetwork){
-            servent.addIncomingConnection(url[0], Integer.valueOf(url[1]));
+            servent.addConnection(url[0], Integer.valueOf(url[1]));
         }
         System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
         String input = br.readLine();
