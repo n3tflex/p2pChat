@@ -1,28 +1,33 @@
 package de.hu.p2p;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
+
 public class IncomingConnection extends Thread {
-    private Servent servent;
-    private Socket socket;
-    private PrintWriter pw;
-    public IncomingConnection(Socket socket, Servent servent){
-        this.servent = servent;
-        this.socket = socket;
+    private BufferedReader br;
+    public IncomingConnection(Socket s) throws IOException{
+        br = new BufferedReader(new InputStreamReader(s.getInputStream()));
     }
 
     public void run(){
-        try{
-            BufferedReader br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            this.pw = new PrintWriter(socket.getOutputStream(), true);
-            while(true) servent.send(br.readLine());
-        } catch (Exception e) { servent.getOutgoingConnections().remove(this); }
-    }
-
-    public PrintWriter getPrintWriter() {
-        return pw;
+        boolean run = true;
+        while(run) {
+            try {
+                // JsonReader detects new incoming message
+                JsonObject jo = Json.createReader(br).readObject();
+                if(jo.containsKey("username")){
+                    // Print to command line
+                    System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
+                }
+            } catch (Exception e){
+                run = false;
+                interrupt();
+            }
+        }
     }
 }
