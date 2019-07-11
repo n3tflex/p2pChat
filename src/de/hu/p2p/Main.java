@@ -6,42 +6,29 @@ import java.net.Socket;
 import java.util.UUID;
 
 public class Main {
-    public static String ID = UUID.randomUUID().toString();
+    private String[] stablePeers = new String[]{"127.0.0.1:4444"};
     private static boolean newNetwork = true;
     private static Servent servent;
-    private String[] stablePeers = new String[]{"192.168.2.104:4444"};
+    public static String ID = UUID.randomUUID().toString();
     public static int port;
-
+    public static int ttl;
+    public static int hop_count;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Enter username and port for this peer (space separated)");
         String[] setup = br.readLine().split(" ");
         port = Integer.valueOf(setup[1]);
-        servent = new Servent(setup[1]);
+        servent = new Servent(port);
         servent.start();
         new Main().startPeers(br, setup[0], servent);
     }
 
     // Called to join the network with a defined username und servent with chosen port
     public void startPeers(BufferedReader br, String username, Servent servent) throws Exception {
-        String[] url = stablePeers[0].split(":");
         if(!newNetwork){
-            servent.addConnection(url[0], Integer.valueOf(url[1]));
-        }
-        System.out.println("Enter hostname and port (space separated localhost:9000 localhost:90001) (s to skip)");
-        String input = br.readLine();
-        if(!input.equals("s")) for (int i = 0; i < stablePeers.length; i++){
-            url = stablePeers[i].split(":");
-            Socket socket = null;
-            try {
-                // Creates a new incoming connection to receive messages from
-                socket = new Socket(url[0], Integer.valueOf(url[1]));
-                IncomingConnection ic = new IncomingConnection(socket, servent);
-                ic.start();
-            } catch(Exception e) {
-                if(socket != null) socket.close();
-                else
-                    System.out.println("invalid input");
+            for (String stablePeer : stablePeers) {
+                String[] url = stablePeer.split(":");
+                servent.addConnection(url[0], Integer.valueOf(url[1]));
             }
         }
         startChat(br, username, servent);
@@ -65,6 +52,7 @@ public class Main {
                 Json.createWriter(sw).writeObject(Json.createObjectBuilder()
                         .add("username", username)
                         .add("message", input)
+                        .add("ID", Main.ID)
                         .build());
                 // Send message to all known outgoing connections
                 servent.sendChatMessage(sw.toString());

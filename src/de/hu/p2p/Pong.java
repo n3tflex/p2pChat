@@ -5,7 +5,7 @@ import java.io.StringWriter;
 import java.util.UUID;
 
 public class Pong {
-
+    private String type = "pong";
     private String ID = Main.ID;
     private String ip;
     private int port;
@@ -20,6 +20,7 @@ public class Pong {
     public String createPong(){
         StringWriter sw = new StringWriter();
         Json.createWriter(sw).writeObject(Json.createObjectBuilder()
+                .add("messageType", type)
                 .add("ID", ID)
                 .add("messageID", UUID.randomUUID().toString())
                 .add("port", port)

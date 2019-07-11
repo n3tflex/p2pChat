@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Servent extends Thread {
 
@@ -13,11 +14,9 @@ public class Servent extends Thread {
     // Server socket to create sockets after connection request
     private ServerSocket serverSocket;
     // HashMaps containing all known connections to sendChatMessage our messages to
-    private HashMap<String, OutgoingConnection> outgoingConnections = new HashMap<>();
-    private HashMap<String, IncomingConnection> incomingConnections = new HashMap<>();
     private HashMap<String, Connection> connections = new HashMap<>();
-
-    public Servent(String port) throws IOException {
+    private HashSet<String> seenMessages = new HashSet<>();
+    public Servent(int port) throws IOException {
         serverSocket = new ServerSocket(Integer.valueOf(port));
     }
 
@@ -31,28 +30,21 @@ public class Servent extends Thread {
                 addConnection(ip, socket);
                // sendPongMessage(Main.port);
             }
-        } catch (Exception e) {e.printStackTrace();}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public HashMap<String, OutgoingConnection> getOutgoingConnections() {
-        return outgoingConnections;
+    public HashMap<String, Connection> getConnections() {
+        return connections;
     }
 
     // This method is called when the user enters a new message to the commandline
     public void sendChatMessage(String message) {
         try {
-            outgoingConnections.forEach((k, v) ->
+            connections.forEach((k, v) ->
                 v.getPrintWriter().println(message));}
         catch (Exception e) {e.printStackTrace();}
-    }
-
-    public void addOutgoingConnection(String ip, Socket socket) {
-        if(!outgoingConnections.containsKey(ip)) {
-            OutgoingConnection ic = new OutgoingConnection(socket, this);
-            outgoingConnections.put(ip, ic);
-            ic.start();
-            System.out.println("New outgoing connection: " + ip);
-        }
     }
 
     public void addConnection(String ip, int port) throws IOException {
@@ -60,45 +52,41 @@ public class Servent extends Thread {
             Connection ic = new Connection(new Socket(ip, port), this);
             connections.put(ip, ic);
             ic.start();
-            PrintWriter pw =  ic.getPrintWriter();
-            pw.println(new Pong(InetAddress.getLocalHost().getHostAddress(), Main.port).createPong());
+            ic.getPrintWriter().println(new Ping().createPing());
             System.out.println("New outgoing connection: " + ip);
         }
     }
-
 
     public void addConnection(String ip, Socket socket) throws IOException {
         if(!connections.containsKey(ip)) {
             Connection ic = new Connection(socket, this);
             connections.put(ip, ic);
             ic.start();
+            ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), 1233).createPong());
             System.out.println("New outgoing connection: " + ip);
-        }
-    }
-
-    public void addIncomingConnection(String ip, int port) throws IOException {
-        if(!incomingConnections.containsKey(ip)){
-            IncomingConnection ic = new IncomingConnection(new Socket(ip, port), this);
-            incomingConnections.put(ip, ic);
-            ic.start();
-            ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), port).createPong());
-            System.out.println("New incoming connection: " + ip);
         }
     }
 
     public void sendPingMessage(String message){
         // Send message to all known outgoing connections
         try {
-            outgoingConnections.forEach((k,v) ->
-                    v.getPrintWriter().println(new Ping(1, 3).createPing()));}
+            connections.forEach((k,v) ->
+                    v.getPrintWriter().println(new Ping().createPing()));}
+        catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void forwardPingMessage(String message){
+        // Send message to all known outgoing connections
+        try {
+            connections.forEach((k,v) ->
+                    v.getPrintWriter().println(message));}
         catch (Exception e) {e.printStackTrace();}
     }
 
     public void sendPongMessage(int port){
         // Send message to all known outgoing connections
-
         try {
-            outgoingConnections.forEach((k,v) -> {
+            connections.forEach((k,v) -> {
                 try {
                     v.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), port).createPong());
                 } catch (UnknownHostException e) {
@@ -106,5 +94,13 @@ public class Servent extends Thread {
                 }
             });}
         catch (Exception e) {e.printStackTrace();}
+    }
+
+    public HashSet<String>  getSeenMessages() {
+        return seenMessages;
+    }
+
+    public void setSeenMessages(HashSet<String>  seenMessages) {
+        this.seenMessages = seenMessages;
     }
 }

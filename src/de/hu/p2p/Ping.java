@@ -5,20 +5,24 @@ import java.io.StringWriter;
 import java.util.UUID;
 
 public class Ping {
+    private String ID = Main.ID;
+    private String type = "ping";
     private String messageID;
     private int TTL;
     private int hopCount;
 
-    public Ping(int ttl, int hopCount){  // Create a message object
-        this.TTL = ttl;
-        this.hopCount = hopCount;
+    public Ping(){  // Create a message object
+        this.TTL = Main.ttl;
+        this.hopCount = Main.hop_count;
     }
 
     public String createPing(){
         StringWriter sw = new StringWriter();
         Json.createWriter(sw).writeObject(Json.createObjectBuilder()
+                .add("messageType", type)
+                .add("ID", ID)
                 .add("messageID", UUID.randomUUID().toString())
-                .add("TTL", TTL)
+                .add("ttl", TTL)
                 .add("hopCount", hopCount)
                 .build());
         return sw.toString();

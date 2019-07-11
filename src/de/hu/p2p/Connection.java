@@ -2,12 +2,11 @@ package de.hu.p2p;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import javax.json.JsonValue;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.UUID;
 
 public class Connection extends Thread {
     private Servent servent;
@@ -19,10 +18,11 @@ public class Connection extends Thread {
     public Connection(Socket socket, Servent servent){
         this.servent = servent;
         this.socket = socket;
+        System.out.println(socket.getLocalPort());
+        System.out.println(socket.getPort());
         this.ip=(((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
         try {
             this.pw = new PrintWriter(socket.getOutputStream(), true);
-            this.br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -31,22 +31,46 @@ public class Connection extends Thread {
     public void run(){
         try{
             // Creates a new BufferedReader listening to new messages from the command line
-            while(true) {
+            this.br = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            while (true) {
                 JsonObject jo = Json.createReader(br).readObject();
-                if(jo.containsKey("username")){
-                    servent.sendChatMessage(jo.toString());
-                } else if(jo.containsKey("ttl")){
-                    servent.sendPingMessage(jo.toString());
-                } else if(jo.containsKey("port")){
-                    String id = Main.ID;
-                    if(id.equals(jo.getString("ID"))){
-                        System.out.println("jo");
-                    } else {
-                      //  servent.sendPongMessage(Main.port);
-                    }
+                if (!Main.ID.equals(jo.getString("ID"))) {
+                    incoming(jo);
+                } else {
+                    outgoing(jo);
                 }
             }
-        } catch (Exception e) { servent.getOutgoingConnections().remove(ip); }
+        }catch(Exception e){
+            e.printStackTrace();
+            servent.getConnections().remove(ip);
+        }
+    }
+
+    public void outgoing(JsonObject jo) {
+        if(jo.containsKey("username")){
+            servent.sendChatMessage(jo.toString());
+            System.out.println("message sent");
+        } else if(jo.getString("messageType").equals("ping")){
+            if(!servent.getSeenMessages().contains(jo.getString("messageID"))){
+                System.out.println("forward Ping");
+                servent.forwardPingMessage(updatePing(jo));
+                servent.getSeenMessages().add(jo.getString("messageID"));
+            }
+        } else if(jo.getString("messageType").equals("pong")){
+        }
+    }
+
+    public void incoming(JsonObject jo) {
+        if(jo.containsKey("username")){
+            System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
+        } else if(jo.getString("messageType").equals("ping")){
+            if(!servent.getSeenMessages().contains(jo.getString("messageID"))){
+                System.out.println("forward Ping");
+                servent.forwardPingMessage(updatePing(jo));
+                servent.getSeenMessages().add(jo.getString("messageID"));
+            }
+        } else if(jo.getString("messageType").equals("pong")){
+        }
     }
 
     public PrintWriter getPrintWriter() {
@@ -55,5 +79,17 @@ public class Connection extends Thread {
 
     public Socket getSocket(){
         return socket;
+    }
+
+    private String updatePing(JsonObject jo){
+        StringWriter sw = new StringWriter();
+        Json.createWriter(sw).writeObject(Json.createObjectBuilder()
+                .add("messageType", jo.getString("messageType"))
+                .add("ID", Main.ID)
+                .add("messageID",  jo.getString("messageID"))
+                .add("ttl", jo.getInt("ttl") - 1)
+                .add("hopCount", jo.getInt("hopCount"))
+                .build());
+        return sw.toString();
     }
 }
