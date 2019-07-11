@@ -1,9 +1,7 @@
 package de.hu.p2p;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.*;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -35,10 +33,6 @@ public class Servent extends Thread {
         }
     }
 
-    public HashMap<String, Connection> getConnections() {
-        return connections;
-    }
-
     // This method is called when the user enters a new message to the commandline
     public void sendChatMessage(String message) {
         try {
@@ -50,7 +44,7 @@ public class Servent extends Thread {
     public void addConnection(String ip, int port) throws IOException {
         if(!connections.containsKey(ip)) {
             Connection ic = new Connection(new Socket(ip, port), this);
-            connections.put(ip, ic);
+            connections.put(ip + port, ic);
             ic.start();
             ic.getPrintWriter().println(new Ping().createPing());
             System.out.println("New outgoing connection: " + ip);
@@ -60,7 +54,7 @@ public class Servent extends Thread {
     public void addConnection(String ip, Socket socket) throws IOException {
         if(!connections.containsKey(ip)) {
             Connection ic = new Connection(socket, this);
-            connections.put(ip, ic);
+            connections.put(ip + socket.getPort(), ic);
             ic.start();
             ic.getPrintWriter().println(new Pong(InetAddress.getLocalHost().getHostAddress(), 1233).createPong());
             System.out.println("New outgoing connection: " + ip);
@@ -100,7 +94,7 @@ public class Servent extends Thread {
         return seenMessages;
     }
 
-    public void setSeenMessages(HashSet<String>  seenMessages) {
-        this.seenMessages = seenMessages;
+    public HashMap<String, Connection> getConnections() {
+        return connections;
     }
 }

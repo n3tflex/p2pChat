@@ -18,8 +18,6 @@ public class Connection extends Thread {
     public Connection(Socket socket, Servent servent){
         this.servent = servent;
         this.socket = socket;
-        System.out.println(socket.getLocalPort());
-        System.out.println(socket.getPort());
         this.ip=(((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress()).toString().replace("/","");
         try {
             this.pw = new PrintWriter(socket.getOutputStream(), true);
@@ -49,10 +47,8 @@ public class Connection extends Thread {
     public void outgoing(JsonObject jo) {
         if(jo.containsKey("username")){
             servent.sendChatMessage(jo.toString());
-            System.out.println("message sent");
         } else if(jo.getString("messageType").equals("ping")){
             if(!servent.getSeenMessages().contains(jo.getString("messageID"))){
-                System.out.println("forward Ping");
                 servent.forwardPingMessage(updatePing(jo));
                 servent.getSeenMessages().add(jo.getString("messageID"));
             }
@@ -75,10 +71,6 @@ public class Connection extends Thread {
 
     public PrintWriter getPrintWriter() {
         return pw;
-    }
-
-    public Socket getSocket(){
-        return socket;
     }
 
     private String updatePing(JsonObject jo){
