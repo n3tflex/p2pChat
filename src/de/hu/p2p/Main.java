@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class Main {
     private String[] stablePeers = new String[]{"127.0.0.1:4444"};
-    private static boolean newNetwork = true;
+    private static boolean newNetwork = false;
     private static Servent servent;
     public static String ID = UUID.randomUUID().toString();
     public static int port;

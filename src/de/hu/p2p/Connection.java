@@ -61,7 +61,6 @@ public class Connection extends Thread {
             System.out.println("["+jo.getString("username")+"]: " +jo.getString("message"));
         } else if(jo.getString("messageType").equals("ping")){
             if(!servent.getSeenMessages().contains(jo.getString("messageID"))){
-                System.out.println("forward Ping");
                 servent.forwardPingMessage(updatePing(jo));
                 servent.getSeenMessages().add(jo.getString("messageID"));
             }
